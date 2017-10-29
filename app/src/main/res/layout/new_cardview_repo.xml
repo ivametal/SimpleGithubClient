@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_margin="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="200dp">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/textview_repo_name"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#222"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="20dp"
+            android:text="Repo name" />
+        <TextView
+            android:id="@+id/textview_repo_description"
+            android:layout_width="160dp"
+            android:layout_height="80dp"
+            android:layout_below="@+id/textview_repo_name"
+            android:layout_alignLeft="@id/textview_repo_name"
+            android:layout_marginTop="10dp"
+            android:text="Repo description"/>
+        <ImageView
+            android:id="@+id/imageview_branches"
+            android:layout_width="15dp"
+            android:layout_height="24dp"
+            android:layout_alignLeft="@+id/textview_repo_description"
+            android:layout_marginTop="150dp"
+            android:alpha="0.5"
+            android:src="@drawable/ic_git_branch"/>
+        <TextView
+            android:id="@+id/textview_branches_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/imageview_branches"
+            android:layout_marginLeft="6dp"
+            android:layout_marginTop="152dp"
+            android:text="3"/>
+        <ImageView
+            android:id="@+id/imageview_forks"
+            android:layout_width="15dp"
+            android:layout_height="24dp"
+            android:layout_alignLeft="@+id/textview_branches_count"
+            android:layout_marginTop="150dp"
+            android:layout_marginStart="36dp"
+            android:alpha="0.5"
+            android:src="@drawable/ic_repo_forked"/>
+        <TextView
+            android:id="@+id/textview_forks_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/imageview_forks"
+            android:layout_marginLeft="6dp"
+            android:layout_marginTop="152dp"
+            android:text="3"/>
+
+        <ImageView
+            android:id="@+id/imageview_watches"
+            android:layout_width="15dp"
+            android:layout_height="24dp"
+            android:layout_alignLeft="@+id/textview_forks_count"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="150dp"
+            android:alpha="0.5"
+            android:src="@drawable/ic_watch"/>
+
+        <TextView
+            android:id="@+id/textview_watchers_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/imageview_watches"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="152dp"
+            android:text="3"/>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="160dp"
+            android:background="@android:color/darker_gray"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/imageview_repo_author_avatar"
+            android:layout_marginEnd="20dp"></View>
+
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imageview_repo_author_avatar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="24dp" />
+    </RelativeLayout>
+
+
+</android.support.v7.widget.CardView>

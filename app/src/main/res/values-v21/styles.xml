@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="MyActivity" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:statusBarColor">#4078c0</item>
+    </style>
+    <style name="WebActivity" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:statusBarColor">#000</item>
+    </style>
+</resources>
