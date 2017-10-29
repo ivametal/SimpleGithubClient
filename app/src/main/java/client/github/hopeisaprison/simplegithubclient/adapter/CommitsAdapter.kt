@@ -12,15 +12,11 @@ import client.github.hopeisaprison.simplegithubclient.R
 import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
 import org.kohsuke.github.GHBranch
-import org.kohsuke.github.GHCommit
-import org.kohsuke.github.GitHub
 import java.text.DateFormat
 import java.util.*
 
-/**
- * Created by hopeisaprison on 10/27/17.
- */
-class CommitsAdapter(private val mContext : Context) :
+
+class CommitsAdapter(private val mContext: Context) :
         RecyclerView.Adapter<CommitsAdapter.CommitHolder>() {
     private val mCommitsList = ArrayList<Commit>()
 
@@ -39,7 +35,7 @@ class CommitsAdapter(private val mContext : Context) :
                 .into(holder?.imageViewAvatar)
     }
 
-    fun addCommits(commitsList : List<Commit>) = mCommitsList.addAll(commitsList)
+    fun addCommits(commitsList: List<Commit>) = mCommitsList.addAll(commitsList)
 
     class CommitHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageViewAvatar = itemView.findViewById<CircleImageView>(R.id.imageview_commit_avatar)
@@ -48,9 +44,10 @@ class CommitsAdapter(private val mContext : Context) :
         val textViewHash = itemView.findViewById<TextView>(R.id.textview_commit_hash)
     }
 
-    class OnScrollDataLoader(private val gitHub: GitHub, private val recyclerView: RecyclerView?,
-                             private val branch : GHBranch) : RecyclerView.OnScrollListener() {
+    class OnScrollDataLoader(recyclerView: RecyclerView?,
+                             private val branch: GHBranch) : RecyclerView.OnScrollListener() {
         private var isLoading = false
+
         init {
             MoreItemLoader(recyclerView).execute()
         }
@@ -61,7 +58,7 @@ class CommitsAdapter(private val mContext : Context) :
             val visibleItemCount = layoutManager.childCount
             val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
             val itemCount = layoutManager.itemCount
-            if (visibleItemCount+firstVisibleItem > itemCount && !isLoading) {
+            if (visibleItemCount + firstVisibleItem > itemCount && !isLoading) {
                 isLoading = true
                 MoreItemLoader(recyclerView).execute()
             }
@@ -87,8 +84,9 @@ class CommitsAdapter(private val mContext : Context) :
                 recyclerView?.adapter?.notifyDataSetChanged()
 
             }
-    }
+        }
 
     }
-    data class Commit(val authorAvatarUrl : String?, val authorName : String?, val date : Date, val sha : String)
+
+    data class Commit(val authorAvatarUrl: String?, val authorName: String?, val date: Date, val sha: String)
 }

@@ -7,10 +7,7 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
-import android.widget.Adapter
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Spinner
+import android.widget.*
 import client.github.hopeisaprison.simplegithubclient.adapter.CommitsAdapter
 import org.kohsuke.github.GHBranch
 import org.kohsuke.github.GitHub
@@ -35,11 +32,11 @@ class RepoActivity : Activity() {
         SpinnerLoader().execute()
     }
 
-    private fun bindRecycler(branch : GHBranch) {
+    private fun bindRecycler(branch: GHBranch) {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview_commits)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = CommitsAdapter(this)
-        recyclerView.addOnScrollListener(CommitsAdapter.OnScrollDataLoader(mGithubConnection, recyclerView, branch))
+        recyclerView.addOnScrollListener(CommitsAdapter.OnScrollDataLoader(recyclerView, branch))
 
     }
 
@@ -81,11 +78,16 @@ class RepoActivity : Activity() {
                         false
                 } catch (exc: IOException) {
                     exc.printStackTrace()
+                    runOnUiThread {
+                        Toast.makeText(this@RepoActivity, "Connection or login failed",
+                                Toast.LENGTH_SHORT).show()
+                    }
                     false
                 }
             else
                 false
         }
+
 
         override fun onPostExecute(result: Boolean) {
             if (result)

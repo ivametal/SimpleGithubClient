@@ -20,7 +20,7 @@ class AuthActivity : Activity() {
                     .withClientSecret("bd7223307db5816cc2188e6df98332a49848944a")
                     .withContext(this@AuthActivity)
                     .packageName(packageName)
-                    .nextActivity(packageName+".MainActivity")
+                    .nextActivity(packageName + ".MainActivity")
                     .debug(true)
                     .execute()
 

@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.widget.TextView
+import android.widget.Toast
 import client.github.hopeisaprison.simplegithubclient.adapter.RepoAdapter
 import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
@@ -20,9 +21,9 @@ class MainActivity : AppCompatActivity() {
     private val AVATAR_URL_TAG = "asdqwe12"
     private var mAvatarUrl: String? = null
 
-    private lateinit var mRecyclerView : RecyclerView
-    private lateinit var mImageViewAvatar : CircleImageView
-    private lateinit var mTextViewName : TextView
+    private lateinit var mRecyclerView: RecyclerView
+    private lateinit var mImageViewAvatar: CircleImageView
+    private lateinit var mTextViewName: TextView
 
     var mGithubConnection: GitHub by Delegates.notNull()
 
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         bindViews(savedInstanceState?.getString(USERNAME_TAG), savedInstanceState?.getString(AVATAR_URL_TAG))
 
         AuthentificationValidator().execute()
-}
+    }
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
@@ -52,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
     }
 
-    private fun bindViews(name : String?, avatarUrl : String?) {
+    private fun bindViews(name: String?, avatarUrl: String?) {
 
         Picasso.with(this)
                 .load(avatarUrl)
@@ -69,19 +70,21 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     private inner class AuthentificationValidator : AsyncTask<Void, Void, Boolean>() {
 
         override fun doInBackground(vararg params: Void?): Boolean {
             val preferences = getSharedPreferences("github_prefs", Context.MODE_PRIVATE)
             val oAuthToken = preferences.getString("oauth_token", null)
-            return if (oAuthToken !==null)
-                return  try {
+            return if (oAuthToken !== null)
+                return try {
                     mGithubConnection = GitHub.connectUsingOAuth(oAuthToken)
                     mGithubConnection.isCredentialValid
-                }
-                catch (exc : IOException) {
+                } catch (exc: IOException) {
                     exc.printStackTrace()
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity, "Connection or login failed",
+                                Toast.LENGTH_SHORT).show()
+                    }
                     return false
                 }
             else
@@ -93,8 +96,7 @@ class MainActivity : AppCompatActivity() {
                 intent = Intent(applicationContext, AuthActivity::class.java)
                 startActivity(intent)
                 finish()
-            }
-            else {
+            } else {
                 bindViews(mGithubConnection.myself.name, mGithubConnection.myself.avatarUrl)
                 bindAdapters()
             }
