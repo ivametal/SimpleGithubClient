@@ -9,8 +9,15 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.*
 import client.github.hopeisaprison.simplegithubclient.adapter.CommitsAdapter
+import io.reactivex.Observable
+import io.reactivex.Observer
+import io.reactivex.Scheduler
+import io.reactivex.SingleObserver
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import org.kohsuke.github.GHBranch
 import org.kohsuke.github.GitHub
+import org.reactivestreams.Subscriber
 import java.io.IOException
 import kotlin.properties.Delegates
 
@@ -28,8 +35,19 @@ class RepoActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_repo)
-
-        SpinnerLoader().execute()
+        Observable.create<Unit> {
+            loadSpinner()
+            it.onComplete()
+        }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({}, {
+                    Toast.makeText(this@RepoActivity, "Connection or login failed",
+                            Toast.LENGTH_SHORT).show()
+                },
+                        {
+                            bindSpinner()
+                        })
     }
 
     private fun bindRecycler(branch: GHBranch) {
@@ -59,39 +77,18 @@ class RepoActivity : Activity() {
     }
 
 
-    inner class SpinnerLoader : AsyncTask<Void, Void, Boolean>() {
-
-        override fun doInBackground(vararg params: Void?): Boolean {
-            val preferences = getSharedPreferences("github_prefs", Context.MODE_PRIVATE)
-            val oAuthToken = preferences.getString("oauth_token", null)
-            return if (oAuthToken !== null)
-                return return try {
-                    mGithubConnection = GitHub.connectUsingOAuth(oAuthToken)
-                    if (mGithubConnection.isCredentialValid) {
-                        val repo = mGithubConnection.getRepository(intent.getStringExtra(REPO_TAG))
-                        val branches = repo.branches
-                        branches.forEach {
-                            mBranchesList.add(it.value)
-                        }
-                        true
-                    } else
-                        false
-                } catch (exc: IOException) {
-                    exc.printStackTrace()
-                    runOnUiThread {
-                        Toast.makeText(this@RepoActivity, "Connection or login failed",
-                                Toast.LENGTH_SHORT).show()
-                    }
-                    false
+    private fun loadSpinner() {
+        val preferences = getSharedPreferences("github_prefs", Context.MODE_PRIVATE)
+        val oAuthToken = preferences.getString("oauth_token", null)
+        if (oAuthToken !== null) {
+            mGithubConnection = GitHub.connectUsingOAuth(oAuthToken)
+            if (mGithubConnection.isCredentialValid) {
+                val repo = mGithubConnection.getRepository(intent.getStringExtra(REPO_TAG))
+                val branches = repo.branches
+                branches.forEach {
+                    mBranchesList.add(it.value)
                 }
-            else
-                false
-        }
-
-
-        override fun onPostExecute(result: Boolean) {
-            if (result)
-                bindSpinner()
+            }
         }
     }
 

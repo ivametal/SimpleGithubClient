@@ -12,6 +12,9 @@ import android.widget.Toast
 import client.github.hopeisaprison.simplegithubclient.adapter.RepoAdapter
 import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import org.kohsuke.github.GitHub
 import java.io.IOException
 import kotlin.properties.Delegates
@@ -39,7 +42,21 @@ class MainActivity : AppCompatActivity() {
 
         bindViews(savedInstanceState?.getString(USERNAME_TAG), savedInstanceState?.getString(AVATAR_URL_TAG))
 
-        AuthentificationValidator().execute()
+        Observable.create<Unit> {
+            validateAuth()
+            it.onComplete()
+        }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({}, {
+                    intent = Intent(applicationContext, AuthActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                },
+                        {
+                            bindViews(mGithubConnection.myself.name, mGithubConnection.myself.avatarUrl)
+                            bindAdapters()
+                        })
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -49,9 +66,6 @@ class MainActivity : AppCompatActivity() {
         outState?.putString(USERNAME_TAG, mTextViewName.text.toString())
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
 
     private fun bindViews(name: String?, avatarUrl: String?) {
 
@@ -69,38 +83,13 @@ class MainActivity : AppCompatActivity() {
         mRecyclerView.isNestedScrollingEnabled = false
     }
 
-
-    private inner class AuthentificationValidator : AsyncTask<Void, Void, Boolean>() {
-
-        override fun doInBackground(vararg params: Void?): Boolean {
-            val preferences = getSharedPreferences("github_prefs", Context.MODE_PRIVATE)
-            val oAuthToken = preferences.getString("oauth_token", null)
-            return if (oAuthToken !== null)
-                return try {
-                    mGithubConnection = GitHub.connectUsingOAuth(oAuthToken)
-                    mGithubConnection.isCredentialValid
-                } catch (exc: IOException) {
-                    exc.printStackTrace()
-                    runOnUiThread {
-                        Toast.makeText(this@MainActivity, "Connection or login failed",
-                                Toast.LENGTH_SHORT).show()
-                    }
-                    return false
-                }
-            else
-                false
+    fun validateAuth()  {
+        val preferences = getSharedPreferences("github_prefs", Context.MODE_PRIVATE)
+        val oAuthToken = preferences.getString("oauth_token", null)
+        if (oAuthToken !== null) {
+            mGithubConnection = GitHub.connectUsingOAuth(oAuthToken)
+            mGithubConnection.isCredentialValid
         }
-
-        override fun onPostExecute(result: Boolean) {
-            if (!result) {
-                intent = Intent(applicationContext, AuthActivity::class.java)
-                startActivity(intent)
-                finish()
-            } else {
-                bindViews(mGithubConnection.myself.name, mGithubConnection.myself.avatarUrl)
-                bindAdapters()
-            }
-        }
-
     }
+
 }

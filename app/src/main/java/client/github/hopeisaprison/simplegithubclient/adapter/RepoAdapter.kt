@@ -13,7 +13,11 @@ import client.github.hopeisaprison.simplegithubclient.R
 import client.github.hopeisaprison.simplegithubclient.RepoActivity
 import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import org.kohsuke.github.GitHub
+import java.util.*
 
 /**
  * Created by hopeisaprison on 10/24/17.
@@ -22,7 +26,22 @@ class RepoAdapter(private val mActivity: Activity, private val mGitHub: GitHub) 
     val reposList = ArrayList<GitRepo>()
 
     init {
-        RepoLoader().execute()
+        Observable.create<String> {
+            it.onNext("Loading Repos")
+            loadRepoInfo()
+            it.onComplete()
+        }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    Toast.makeText(mActivity, it, Toast.LENGTH_SHORT).show()
+                }, {
+
+                },
+                        {
+                            notifyDataSetChanged()
+                        })
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int) =
@@ -58,30 +77,17 @@ class RepoAdapter(private val mActivity: Activity, private val mGitHub: GitHub) 
         val textViewWatchersCount = itemView.findViewById<TextView>(R.id.textview_watchers_count)
     }
 
-
-    inner class RepoLoader : AsyncTask<Void, Void, Void?>() {
-        override fun doInBackground(vararg params: Void?): Void? {
-            mActivity.runOnUiThread {
-                Toast.makeText(mActivity, "Loading repos", Toast.LENGTH_LONG).show()
-            }
-            mGitHub.myself.allRepositories.forEach {
-                reposList.add(GitRepo(it.value.name,
-                        it.value.description,
-                        it.value.ownerName,
-                        it.value.owner.avatarUrl,
-                        it.value.forks,
-                        it.value.branches.size,
-                        it.value.watchers,
-                        it.value.fullName))
-            }
-            return null
+    private fun loadRepoInfo() {
+        mGitHub.myself.allRepositories.forEach {
+            reposList.add(GitRepo(it.value.name,
+                    it.value.description,
+                    it.value.ownerName,
+                    it.value.owner.avatarUrl,
+                    it.value.forks,
+                    it.value.branches.size,
+                    it.value.watchers,
+                    it.value.fullName))
         }
-
-        override fun onPostExecute(result: Void?) {
-            super.onPostExecute(result)
-            notifyDataSetChanged()
-        }
-
     }
 
 
